@@ -4,6 +4,7 @@ import { generateProductDescription } from '../lib/gemini'
 
 export default function Seller() {
   const [productName, setProductName] = useState('')
+  const [price, setPrice] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -32,8 +33,18 @@ export default function Seller() {
           value={productName}
           onChange={(e) => setProductName(e.target.value)}
           placeholder="Например: Беспроводные наушники"
-          style={{ width: '100%', maxWidth: 400, padding: '0.5rem', marginBottom: '1rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+          style={{ width: '100%', maxWidth: 400, padding: '0.5rem', marginBottom: '0.5rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
         />
+        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Цена (₽)</label>
+        <input
+          type="number"
+          min="0"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="0"
+          style={{ width: '120px', padding: '0.5rem', marginBottom: '1rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+        />
+        <br />
         <button
           type="button"
           className="btn btn-primary"

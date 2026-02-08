@@ -36,6 +36,17 @@ export default function Buyer() {
     })
   }
 
+  const changeQty = (id: string, delta: number) => {
+    setCart((prev) => {
+      const i = prev.findIndex((c) => c.id === id)
+      if (i < 0) return prev
+      const next = [...prev]
+      next[i].qty += delta
+      if (next[i].qty <= 0) return next.filter((_, j) => j !== i)
+      return next
+    })
+  }
+
   const cartCount = cart.reduce((s, c) => s + c.qty, 0)
 
   return (
@@ -61,12 +72,15 @@ export default function Buyer() {
       {cartCount > 0 && (
         <div className="card" style={{ marginTop: '1.5rem' }}>
           <strong>Корзина</strong>
-          <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem' }}>
+          <ul style={{ margin: '0.5rem 0 0', paddingLeft: '1.25rem', listStyle: 'none' }}>
             {cart.map((c) => {
               const product = CATALOG.find((x) => x.id === c.id)!
               return (
-                <li key={c.id}>
-                  {product.name} × {c.qty} — {(product.price * c.qty).toLocaleString('ru-RU')} ₽
+                <li key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <button type="button" className="btn btn-secondary" style={{ padding: '0.2rem 0.5rem' }} onClick={() => changeQty(c.id, -1)}>−</button>
+                  <span style={{ minWidth: '2ch' }}>{c.qty}</span>
+                  <button type="button" className="btn btn-secondary" style={{ padding: '0.2rem 0.5rem' }} onClick={() => changeQty(c.id, 1)}>+</button>
+                  <span>{product.name} — {(product.price * c.qty).toLocaleString('ru-RU')} ₽</span>
                 </li>
               )
             })}

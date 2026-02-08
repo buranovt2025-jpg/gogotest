@@ -25,6 +25,10 @@ npm run build
 `try_files $uri $uri/ /index.html;`  
 Пример: `deploy/nginx-spa.conf`.
 
+## Переменные окружения
+
+- `VITE_GEMINI_API_KEY` — ключ Google AI (Gemini) для генерации описаний товаров у продавца. Необязательно: без ключа показывается подсказка. Пример: `.env.example`.
+
 ## Развёртывание
 
 ### Digital Ocean Droplet (сервер)

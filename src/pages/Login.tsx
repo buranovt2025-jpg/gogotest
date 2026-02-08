@@ -30,7 +30,7 @@ export default function Login() {
     return (
       <>
         <PageTitle title={t('loginTitle')} />
-        <p style={{ color: '#64748b' }}>Вход доступен только при подключённом API (VITE_API_URL).</p>
+        <p style={{ color: '#475569' }}>Вход доступен только при подключённом API (VITE_API_URL).</p>
         <Link to="/" className="btn btn-secondary">{t('backLink')}</Link>
       </>
     )
@@ -65,9 +65,13 @@ export default function Login() {
       <PageTitle title={tab === 'login' ? t('loginTitle') : t('registerTitle')} />
       <Link to="/" style={{ display: 'inline-block', marginBottom: '1rem' }}>← {t('backLink')}</Link>
       <div className="card" style={{ maxWidth: 400 }}>
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+        <div role="tablist" aria-label={t('loginTitle')} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
           <button
             type="button"
+            role="tab"
+            aria-selected={tab === 'login'}
+            aria-controls="login-panel"
+            id="tab-login"
             className={tab === 'login' ? 'btn btn-primary' : 'btn btn-secondary'}
             onClick={() => { setTab('login'); setError('') }}
           >
@@ -75,39 +79,49 @@ export default function Login() {
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={tab === 'register'}
+            aria-controls="login-panel"
+            id="tab-register"
             className={tab === 'register' ? 'btn btn-primary' : 'btn btn-secondary'}
             onClick={() => { setTab('register'); setError('') }}
           >
             {t('registerTitle')}
           </button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>{t('email')}</label>
+        <form id="login-panel" role="tabpanel" aria-labelledby={tab === 'login' ? 'tab-login' : 'tab-register'} onSubmit={handleSubmit} aria-label={tab === 'login' ? t('loginTitle') : t('registerTitle')}>
+          <label htmlFor="login-email" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#1e293b' }}>{t('email')}</label>
           <input
+            id="login-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            style={{ width: '100%', padding: '0.5rem', marginBottom: '0.75rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+            aria-required="true"
+            style={{ width: '100%', padding: '0.5rem', marginBottom: '0.75rem', borderRadius: 6, border: '1px solid #64748b', color: '#0f172a' }}
           />
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>{t('password')}</label>
+          <label htmlFor="login-password" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#1e293b' }}>{t('password')}</label>
           <input
+            id="login-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
             autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
-            style={{ width: '100%', padding: '0.5rem', marginBottom: '0.75rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+            aria-required="true"
+            style={{ width: '100%', padding: '0.5rem', marginBottom: '0.75rem', borderRadius: 6, border: '1px solid #64748b', color: '#0f172a' }}
           />
           {tab === 'register' && (
             <>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>{t('role')}</label>
+              <label htmlFor="login-role" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: '#1e293b' }}>{t('role')}</label>
               <select
+                id="login-role"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                style={{ width: '100%', padding: '0.5rem', marginBottom: '0.75rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+                aria-label={t('role')}
+                style={{ width: '100%', padding: '0.5rem', marginBottom: '0.75rem', borderRadius: 6, border: '1px solid #64748b', color: '#0f172a' }}
               >
                 {ROLES.map((r) => (
                   <option key={r.value} value={r.value}>{t(r.labelKey)}</option>

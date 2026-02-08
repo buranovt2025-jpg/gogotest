@@ -1,15 +1,26 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, OnModuleInit } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import * as bcrypt from 'bcrypt'
 import { User, UserRole } from '../entities/user.entity'
 
+const SEED_EMAIL = 'admin@gogomarket.local'
+const SEED_PASSWORD = 'GogoAdmin123'
+
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
   constructor(
     @InjectRepository(User)
     private readonly repo: Repository<User>,
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    const count = await this.repo.count()
+    if (count === 0) {
+      await this.create(SEED_EMAIL, SEED_PASSWORD, UserRole.ADMIN)
+      console.log(`Seed user created: ${SEED_EMAIL} / ${SEED_PASSWORD}`)
+    }
+  }
 
   async findByEmail(email: string): Promise<User | null> {
     return this.repo.findOne({ where: { email: email.toLowerCase() } })

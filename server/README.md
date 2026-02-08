@@ -45,6 +45,8 @@ API: **http://localhost:3001**
 - `POST /auth/register` — регистрация: `{ email, password, role }` (role: BUYER | SELLER_FULL | SELLER_SIMPLE | COURIER | ADMIN)
 - `POST /auth/login` — вход: `{ email, password }` → в ответе `access_token` и `user`
 
+При первом запуске (если в БД нет пользователей) создаётся тестовый: **admin@gogomarket.local** / **GogoAdmin123** (роль ADMIN). Смени пароль после входа или зарегистрируй своих пользователей.
+
 **С JWT (заголовок `Authorization: Bearer <token>`):**
 
 - `POST /orders` — создать заказ (роль **BUYER**): `{ total, status?, items }`

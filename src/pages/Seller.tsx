@@ -9,10 +9,25 @@ export default function Seller() {
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const [myProducts, setMyProducts] = useState<SellerProduct[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   useEffect(() => {
     setMyProducts(loadSellerProducts())
   }, [])
+
+  const startEdit = (p: SellerProduct) => {
+    setEditingId(p.id)
+    setProductName(p.name)
+    setPrice(p.price)
+    setDescription(p.description)
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+    setProductName('')
+    setPrice('')
+    setDescription('')
+  }
 
   const handleGenerate = async () => {
     if (!productName.trim()) return
@@ -26,21 +41,32 @@ export default function Seller() {
     }
   }
 
-  const handleAddProduct = () => {
+  const handleSaveProduct = () => {
     if (!productName.trim()) return
-    const newProduct: SellerProduct = {
-      id: `p-${Date.now()}`,
-      name: productName.trim(),
-      price: price.trim() || '0',
-      description: description.trim(),
-      createdAt: Date.now(),
+    if (editingId) {
+      const next = myProducts.map((p) =>
+        p.id === editingId
+          ? { ...p, name: productName.trim(), price: price.trim() || '0', description: description.trim() }
+          : p
+      )
+      setMyProducts(next)
+      saveSellerProducts(next)
+      cancelEdit()
+    } else {
+      const newProduct: SellerProduct = {
+        id: `p-${Date.now()}`,
+        name: productName.trim(),
+        price: price.trim() || '0',
+        description: description.trim(),
+        createdAt: Date.now(),
+      }
+      const next = [newProduct, ...myProducts]
+      setMyProducts(next)
+      saveSellerProducts(next)
+      setProductName('')
+      setPrice('')
+      setDescription('')
     }
-    const next = [newProduct, ...myProducts]
-    setMyProducts(next)
-    saveSellerProducts(next)
-    setProductName('')
-    setPrice('')
-    setDescription('')
   }
 
   const handleRemove = (id: string) => {
@@ -56,6 +82,7 @@ export default function Seller() {
       <p style={{ color: '#64748b', marginBottom: '1rem' }}>Добавьте товар. Описание можно сгенерировать через ИИ (Gemini).</p>
 
       <div className="card">
+        {editingId && <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: '#64748b' }}>Редактирование товара</p>}
         <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Название товара</label>
         <input
           type="text"
@@ -90,12 +117,15 @@ export default function Seller() {
           </button>
           <button
             type="button"
-            className="btn btn-secondary"
-            onClick={handleAddProduct}
+            className="btn btn-primary"
+            onClick={handleSaveProduct}
             disabled={!productName.trim()}
           >
-            Добавить товар
+            {editingId ? 'Сохранить изменения' : 'Добавить товар'}
           </button>
+          {editingId && (
+            <button type="button" className="btn btn-secondary" onClick={cancelEdit}>Отмена</button>
+          )}
         </div>
       </div>
 
@@ -111,7 +141,10 @@ export default function Seller() {
                 <p style={{ margin: '0.25rem 0', fontSize: '0.95rem' }}>{Number(p.price) > 0 ? `${Number(p.price).toLocaleString('ru-RU')} ₽` : '— ₽'}</p>
                 {p.description && <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>{p.description.slice(0, 120)}{p.description.length > 120 ? '…' : ''}</p>}
               </div>
-              <button type="button" className="btn btn-secondary" style={{ fontSize: '0.85rem' }} onClick={() => handleRemove(p.id)}>Удалить</button>
+              <div style={{ display: 'flex', gap: '0.25rem' }}>
+                <button type="button" className="btn btn-secondary" style={{ fontSize: '0.85rem' }} onClick={() => startEdit(p)}>Редактировать</button>
+                <button type="button" className="btn btn-secondary" style={{ fontSize: '0.85rem' }} onClick={() => handleRemove(p.id)}>Удалить</button>
+              </div>
             </div>
           ))}
         </div>

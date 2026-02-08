@@ -26,12 +26,17 @@ function load(): Delivery[] {
   return INITIAL
 }
 
+type FilterStatus = Status | 'Все'
+
 export default function Courier() {
   const [deliveries, setDeliveries] = useState<Delivery[]>(load)
+  const [filter, setFilter] = useState<FilterStatus>('Все')
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(deliveries))
   }, [deliveries])
+
+  const filtered = filter === 'Все' ? deliveries : deliveries.filter((d) => d.status === filter)
 
   const setStatus = (id: string, next: Status) => {
     setDeliveries((prev) => prev.map((d) => (d.id === id ? { ...d, status: next } : d)))
@@ -47,10 +52,23 @@ export default function Courier() {
     <>
       <PageTitle title="Курьер" />
       <h1 style={{ marginTop: 0 }}>Курьер</h1>
-      <p style={{ color: '#64748b', marginBottom: '1rem' }}>Список доставок. Меняйте статус кнопками.</p>
+      <p style={{ color: '#64748b', marginBottom: '0.75rem' }}>Список доставок. Меняйте статус кнопками.</p>
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+        {(['Все', 'Ожидает', 'В пути', 'Доставлен'] as const).map((f) => (
+          <button
+            key={f}
+            type="button"
+            className={filter === f ? 'btn btn-primary' : 'btn btn-secondary'}
+            style={{ fontSize: '0.85rem' }}
+            onClick={() => setFilter(f)}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {deliveries.map((d) => {
+        {filtered.map((d) => {
           const next = nextStatus(d)
           return (
             <div key={d.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>

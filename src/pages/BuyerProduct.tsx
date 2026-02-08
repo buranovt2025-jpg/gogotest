@@ -36,17 +36,28 @@ export default function BuyerProduct() {
     navigate('/buyer')
   }
 
+  const isFull = product.sellerType === 'FULL'
+
   return (
     <>
       <PageTitle title={product.name} />
       <Link to="/buyer" style={{ display: 'inline-block', marginBottom: '1rem' }}>← В каталог</Link>
       <div className="card">
-        <h1 style={{ marginTop: 0 }}>{product.name}</h1>
+        <div style={{ marginBottom: '0.5rem' }}>
+          {product.sellerType === 'SIMPLE' && <span style={{ fontSize: '0.75rem', background: '#e2e8f0', padding: '0.15rem 0.4rem', borderRadius: 4, marginRight: '0.5rem' }}>Dealer</span>}
+          <h1 style={{ marginTop: 0, display: 'inline' }}>{product.name}</h1>
+        </div>
         <p style={{ fontSize: '1.25rem', margin: '0.5rem 0' }}>{product.price.toLocaleString('ru-RU')} ₽</p>
         <p style={{ color: '#64748b' }}>{product.description}</p>
         <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-primary" onClick={() => handleAdd(1)}>В корзину</button>
-          <button type="button" className="btn btn-secondary" onClick={() => handleAdd(2)}>+2 в корзину</button>
+          {isFull ? (
+            <>
+              <button type="button" className="btn btn-primary" onClick={() => handleAdd(1)}>В корзину</button>
+              <button type="button" className="btn btn-secondary" onClick={() => handleAdd(2)}>+2 в корзину</button>
+            </>
+          ) : (
+            <Link to={`/chat?product=${product.id}`} className="btn btn-primary">Связаться</Link>
+          )}
         </div>
       </div>
     </>

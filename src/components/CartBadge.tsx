@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from '../i18n/useTranslation'
 
 const CART_KEY = 'gogomarket-cart'
 
@@ -13,6 +14,7 @@ function getCartCount(): number {
 }
 
 export default function CartBadge() {
+  const { t } = useTranslation()
   const [count, setCount] = useState(getCartCount)
 
   useEffect(() => {
@@ -25,10 +27,10 @@ export default function CartBadge() {
     }
   }, [])
 
-  if (count === 0) return <Link to="/buyer">Покупатель</Link>
+  if (count === 0) return <Link to="/buyer">{t('navBuyer')}</Link>
   return (
     <Link to="/buyer">
-      Покупатель <span style={{ background: '#475569', padding: '0.1rem 0.4rem', borderRadius: 10, fontSize: '0.75rem' }}>{count}</span>
+      {t('navBuyer')} <span style={{ background: '#475569', padding: '0.1rem 0.4rem', borderRadius: 10, fontSize: '0.75rem' }}>{count}</span>
     </Link>
   )
 }

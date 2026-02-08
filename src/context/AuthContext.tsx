@@ -53,10 +53,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    const base = (import.meta.env.VITE_API_URL as string)?.trim() || ''
+    const envUrl = (import.meta.env.VITE_API_URL as string)?.trim()
+    const o = typeof window !== 'undefined' && window.location?.origin
+    const apiBase = envUrl || (o && (o.startsWith('http://') || o.startsWith('https://')) ? `${o}/api` : '')
     let res: Response
     try {
-      res = await fetch(`${base.replace(/\/$/, '')}/auth/login`, {
+      res = await fetch(`${apiBase.replace(/\/$/, '')}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -79,10 +81,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const register = useCallback(async (email: string, password: string, role: string) => {
-    const base = (import.meta.env.VITE_API_URL as string)?.trim() || ''
+    const envUrl = (import.meta.env.VITE_API_URL as string)?.trim()
+    const o = typeof window !== 'undefined' && window.location?.origin
+    const apiBase = envUrl || (o && (o.startsWith('http://') || o.startsWith('https://')) ? `${o}/api` : '')
     let res: Response
     try {
-      res = await fetch(`${base.replace(/\/$/, '')}/auth/register`, {
+      res = await fetch(`${apiBase.replace(/\/$/, '')}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, role }),

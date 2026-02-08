@@ -1,9 +1,14 @@
 /**
  * API client для GogoMarket backend.
- * Используется, когда задан VITE_API_URL (например http://localhost:3001).
+ * VITE_API_URL при сборке или авто: origin + /api (если открыто с того же хоста).
  */
-
-const base = (): string => (import.meta.env.VITE_API_URL as string)?.trim() || ''
+function base(): string {
+  const env = (import.meta.env.VITE_API_URL as string)?.trim() || ''
+  if (env) return env
+  const o = typeof window !== 'undefined' && window.location?.origin
+  if (o && (o.startsWith('http://') || o.startsWith('https://'))) return `${o}/api`
+  return ''
+}
 
 export interface ApiProduct {
   id: string
@@ -43,6 +48,10 @@ const TOKEN_KEY = 'gogomarket-token'
 
 export function isApiEnabled(): boolean {
   return base().length > 0
+}
+
+export function getApiBase(): string {
+  return base()
 }
 
 function getStoredToken(): string | null {

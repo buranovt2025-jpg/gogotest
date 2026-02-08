@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import PageTitle from '../components/PageTitle'
-
-const CATALOG = [
-  { id: '1', name: 'Смартфон X', price: 29990 },
-  { id: '2', name: 'Наушники Pro', price: 4990 },
-  { id: '3', name: 'Чехол универсальный', price: 790 },
-]
+import { CATALOG } from '../data/catalog'
 
 const CART_KEY = 'gogomarket-cart'
+
+const MOCK_ORDERS = [
+  { id: 'O-1001', date: '2026-02-07', total: 34980, status: 'Доставлен', items: 'Смартфон X, Наушники Pro' },
+  { id: 'O-1002', date: '2026-02-05', total: 790, status: 'Отменён', items: 'Чехол универсальный' },
+]
 
 function loadCart(): { id: string; qty: number }[] {
   try {
@@ -60,11 +61,24 @@ export default function Buyer() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
         {CATALOG.map((p) => (
           <div key={p.id} className="card">
-            <strong>{p.name}</strong>
+            <Link to={`/buyer/product/${p.id}`} style={{ fontWeight: 600, marginBottom: '0.25rem', display: 'block' }}>{p.name}</Link>
             <p style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{p.price.toLocaleString('ru-RU')} ₽</p>
             <button type="button" className="btn btn-primary" onClick={() => addToCart(p.id)}>
               В корзину
             </button>
+          </div>
+        ))}
+      </div>
+
+      <h2 style={{ marginTop: '2rem', marginBottom: '0.75rem' }}>Мои заказы</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {MOCK_ORDERS.map((o) => (
+          <div key={o.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div>
+              <strong>{o.id}</strong> — {o.date} · {o.items}
+            </div>
+            <span style={{ marginLeft: '0.5rem' }}>{o.total.toLocaleString('ru-RU')} ₽</span>
+            <span style={{ padding: '0.2rem 0.5rem', borderRadius: 6, fontSize: '0.85rem', background: o.status === 'Доставлен' ? '#dcfce7' : '#fef3c7', color: '#334155' }}>{o.status}</span>
           </div>
         ))}
       </div>

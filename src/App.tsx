@@ -3,6 +3,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Buyer from './pages/Buyer'
+import BuyerProduct from './pages/BuyerProduct'
 import Seller from './pages/Seller'
 import Courier from './pages/Courier'
 import Admin from './pages/Admin'
@@ -15,6 +16,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/buyer" element={<Buyer />} />
+          <Route path="/buyer/product/:id" element={<BuyerProduct />} />
           <Route path="/seller" element={<Seller />} />
           <Route path="/courier" element={<Courier />} />
           <Route path="/admin" element={<Admin />} />

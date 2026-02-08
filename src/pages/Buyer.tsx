@@ -74,8 +74,15 @@ export default function Buyer() {
           <p style={{ marginTop: '0.5rem' }}>
             Итого: {cart.reduce((s, c) => s + (CATALOG.find((x) => x.id === c.id)!.price * c.qty), 0).toLocaleString('ru-RU')} ₽
           </p>
-          <button type="button" className="btn btn-primary" onClick={() => setCart([])}>
+          <button type="button" className="btn btn-primary" onClick={() => setCart([])} style={{ marginRight: '0.5rem' }}>
             Очистить корзину
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => alert('Оформление заказа будет подключено к бэкенду.')}
+          >
+            Оформить заказ
           </button>
         </div>
       )}

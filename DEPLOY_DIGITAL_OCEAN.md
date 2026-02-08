@@ -25,6 +25,8 @@ systemctl enable nginx && systemctl start nginx
 
 Либо выполнить скрипт из репозитория: `bash scripts/server-setup.sh`
 
+**SPA (React Router):** чтобы при обновлении страницы на `/buyer`, `/seller` и т.д. не было 404, в конфиге Nginx для сайта в блок `location /` добавьте: `try_files $uri $uri/ /index.html;` (пример в `deploy/nginx-spa.conf`).
+
 ### 2. Секреты в GitHub
 
 В репозитории: **Settings → Secrets and variables → Actions → New repository secret.**

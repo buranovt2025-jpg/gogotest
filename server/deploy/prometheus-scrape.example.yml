@@ -1,0 +1,9 @@
+# Фрагмент конфига Prometheus для скрапинга GogoMarket API.
+# Добавить в prometheus.yml в секцию scrape_configs:
+
+# scrape_configs:
+#   - job_name: gogomarket
+#     static_configs:
+#       - targets: ['localhost:3001']
+#     metrics_path: /metrics
+#     scrape_interval: 15s

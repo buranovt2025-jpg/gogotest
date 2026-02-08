@@ -1,0 +1,18 @@
+# PostgreSQL для локальной разработки.
+# Запуск: docker compose up -d
+# Подключение: DATABASE_URL=postgresql://gogomarket:gogomarket@localhost:5432/gogomarket (в server/.env).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: gogomarket
+      POSTGRES_PASSWORD: gogomarket
+      POSTGRES_DB: gogomarket
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

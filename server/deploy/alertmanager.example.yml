@@ -1,0 +1,44 @@
+# Пример конфигурации Alertmanager для алертов GogoMarket.
+# Запуск: alertmanager --config.file=alertmanager.example.yml
+# В prometheus.yml задать: alerting: alertmanagers: [{ static_configs: [{ targets: ['localhost:9093'] }] }]
+
+global:
+  # resolve_timeout: 5m
+
+route:
+  receiver: default
+  group_by: ['alertname', 'job']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    # Критичные алерты (GogoMarketDown) — можно направить в отдельный канал
+    - match:
+        severity: critical
+      receiver: default
+      # continue: true  # отправить также в default
+    # Предупреждения (GogoMarketHighRequestRate)
+    - match:
+        severity: warning
+      receiver: default
+
+receivers:
+  - name: default
+    # Вывод в консоль (для проверки). Замените на свой канал уведомлений.
+    # Slack:
+    #   api_url: 'https://hooks.slack.com/services/XXX/YYY/ZZZ'
+    #   channel: '#alerts'
+    #   title: '{{ .GroupLabels.alertname }}'
+    #   text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    #
+    # Email (раскомментировать и задать smtp_* в global):
+    # email_configs:
+    #   - to: 'ops@example.com'
+    #     send_resolved: true
+    #
+    # Webhook (например, Telegram, custom API):
+    # webhook_configs:
+    #   - url: 'http://localhost:5001/webhook'
+    #     send_resolved: true
+    #
+    # Без настроенных каналов алерты только группируются и повторяются по repeat_interval.

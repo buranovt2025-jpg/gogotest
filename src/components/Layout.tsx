@@ -1,12 +1,16 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useLocale } from '../context/LocaleContext'
 import { useTranslation } from '../i18n/useTranslation'
+import { useAuth } from '../context/AuthContext'
+import { isApiEnabled } from '../api/client'
 import CartBadge from './CartBadge'
 
 export default function Layout() {
   const path = useLocation().pathname
   const { locale, setLocale } = useLocale()
   const { t } = useTranslation()
+  const { user, logout, isAuthenticated } = useAuth()
+  const showAuth = isApiEnabled()
   return (
     <>
       <a href="#main" className="skip-link">{t('skipToContent')}</a>
@@ -17,6 +21,18 @@ export default function Layout() {
         <Link to="/courier" style={{ fontWeight: path === '/courier' ? 600 : 400 }}>{t('navCourier')}</Link>
         <Link to="/admin" style={{ fontWeight: path === '/admin' ? 600 : 400 }}>{t('navAdmin')}</Link>
         <Link to="/chat" style={{ fontWeight: path === '/chat' ? 600 : 400 }}>{t('navChat')}</Link>
+        {showAuth && (
+          <span style={{ marginLeft: '0.5rem' }}>
+            {isAuthenticated ? (
+              <>
+                <span style={{ fontSize: '0.85rem', color: '#94a3b8', marginRight: '0.5rem' }}>{user?.email}</span>
+                <button type="button" className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.85rem' }} onClick={logout}>{t('logout')}</button>
+              </>
+            ) : (
+              <Link to="/login" className="btn btn-primary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.85rem' }}>{t('login')}</Link>
+            )}
+          </span>
+        )}
         <span style={{ marginLeft: 'auto', display: 'flex', gap: '0.25rem' }}>
           {(['ru', 'uz', 'en'] as const).map((l) => (
             <button

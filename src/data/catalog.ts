@@ -7,6 +7,10 @@ export interface CatalogProduct {
   description: string
   /** FULL = магазин (В корзину), SIMPLE = объявление (Связаться), бейдж Dealer */
   sellerType: SellerType
+  /** URL фото для рилсов */
+  imageUrl?: string | null
+  /** URL видео для рилсов */
+  videoUrl?: string | null
 }
 
 export const CATALOG: CatalogProduct[] = [

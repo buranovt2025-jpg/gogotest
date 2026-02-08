@@ -39,7 +39,22 @@ systemctl enable nginx && systemctl start nginx
 | `DEPLOY_USER` | пользователь SSH | `root` |
 | `DEPLOY_PASSWORD` | пароль root | ваш пароль |
 
-После этого каждый `git push origin main` запускает сборку и деплой. Сайт: **http://134.122.77.41**
+После этого каждый `git push origin main` запускает сборку и деплой **фронта** и **API**.
+
+### 3. Один раз на сервере: Node.js и PM2 для API
+
+API выкладывается в `/var/www/gogomarket-api/`. Чтобы он запускался при деплое, на сервере должны быть Node.js 20 и PM2:
+
+```bash
+ssh root@134.122.77.41
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt-get install -y nodejs
+npm install -g pm2
+```
+
+В `/var/www/gogomarket-api/` создайте файл `.env` (вручную, не из репо) с переменными: `DATABASE_URL`, `JWT_SECRET`, при необходимости `PORT`, `S3_*` и т.д. (см. `server/.env.example`). При первом деплое workflow запустит приложение через `pm2 start`; при следующих — `pm2 restart gogomarket-api`.
+
+Проксирование запросов к API с Nginx (опционально): в конфиг Nginx добавьте `location /api/ { proxy_pass http://127.0.0.1:3001/; }` и на фронте задайте `VITE_API_URL` с этим путём.
 
 ---
 

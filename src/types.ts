@@ -46,4 +46,10 @@ export interface Order {
   disputeResolvedBy?: string | null
   /** Когда решён (ISO) */
   disputeResolvedAt?: string | null
+  /** Последняя известная широта курьера (трекинг) */
+  lastCourierLat?: number | null
+  /** Последняя известная долгота курьера (трекинг) */
+  lastCourierLng?: number | null
+  /** Время последнего обновления позиции (ISO) */
+  lastCourierAt?: string | null
 }

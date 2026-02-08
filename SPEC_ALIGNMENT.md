@@ -78,10 +78,10 @@
 
 **Осталось (согласно отчёту):**
 
-- **Backend:** NestJS + PostgreSQL (сейчас localStorage и моки).
-- **Real-time:** WebSocket для чата и трекинга курьера.
+- **Backend:** NestJS API готов (products, orders, disputes), in-memory; PostgreSQL — опционально (docker-compose в server/).
+- **Real-time:** WebSocket (Socket.IO) добавлен в server (ChatGateway: join, message); фронт — заготовка в api/ws.ts.
 - **Media:** загрузка и хранение (S3), обработка видео (FFmpeg).
 - **Maps:** API карт (Яндекс / 2GIS) для адреса и трекинга.
-- **Языки:** переключатель RU/UZ/EN (в отчёте упомянут, в коде пока нет).
+- **Языки:** переключатель RU/UZ/EN реализован (LocaleContext, translations.ts, useTranslation), все экраны переведены: Home, Layout, Buyer, Seller, Courier, Admin, BuyerProduct, ChatView.
 
 Код приведён в соответствие с описанной в отчёте структурой ТЗ и готов к этапу интеграции с бэкендом.

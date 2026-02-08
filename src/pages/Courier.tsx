@@ -1,102 +1,122 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import PageTitle from '../components/PageTitle'
+import { useTranslation } from '../i18n/useTranslation'
+import { useAuth } from '../context/AuthContext'
+import { isApiEnabled } from '../api/client'
+import { apiMyDeliveries, apiUpdateOrderStatus } from '../api/client'
+import type { ApiOrder } from '../api/client'
+import { getSocket } from '../api/ws'
 
-const DELIVERY_STATUSES = ['Ожидает', 'В пути', 'Доставлен'] as const
-type Status = (typeof DELIVERY_STATUSES)[number]
+const STATUS_KEYS = ['statusWaiting', 'statusEnRoute', 'statusDelivered'] as const
+type StatusKey = (typeof STATUS_KEYS)[number]
 
-interface Delivery {
-  id: string
-  orderId: string
-  address: string
-  status: Status
+function statusToKey(status: string): StatusKey {
+  if (status === 'В пути') return 'statusEnRoute'
+  if (status === 'Доставлен') return 'statusDelivered'
+  return 'statusWaiting'
 }
-
-const STORAGE_KEY = 'gogomarket-courier-deliveries'
-const INITIAL: Delivery[] = [
-  { id: '1', orderId: '#1001', address: 'ул. Примерная, 10', status: 'В пути' },
-  { id: '2', orderId: '#1002', address: 'пр. Тестовый, 5', status: 'Ожидает' },
-  { id: '3', orderId: '#1003', address: 'ул. Демо, 3', status: 'Доставлен' },
-]
-
-function load(): Delivery[] {
-  try {
-    const s = localStorage.getItem(STORAGE_KEY)
-    if (s) return JSON.parse(s)
-  } catch {}
-  return INITIAL
-}
-
-type FilterStatus = Status | 'Все'
 
 export default function Courier() {
-  const [deliveries, setDeliveries] = useState<Delivery[]>(load)
-  const [filter, setFilter] = useState<FilterStatus>('Все')
+  const { t } = useTranslation()
+  const { user, isAuthenticated } = useAuth()
+  const [deliveries, setDeliveries] = useState<ApiOrder[]>([])
+  const [autoSendLocation, setAutoSendLocation] = useState(false)
+  const useApi = isApiEnabled() && isAuthenticated && user?.role === 'COURIER'
+  const enRouteIds = deliveries.filter((o) => o.status === 'В пути').map((o) => o.id)
+
+  const fetchDeliveries = useCallback(() => {
+    if (!useApi) return
+    apiMyDeliveries().then(setDeliveries).catch(() => setDeliveries([]))
+  }, [useApi])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(deliveries))
-  }, [deliveries])
+    fetchDeliveries()
+  }, [fetchDeliveries])
 
-  const filtered = filter === 'Все' ? deliveries : deliveries.filter((d) => d.status === filter)
-
-  const setStatus = (id: string, next: Status) => {
-    setDeliveries((prev) => prev.map((d) => (d.id === id ? { ...d, status: next } : d)))
+  const handleMarkDelivered = (orderId: string) => {
+    apiUpdateOrderStatus(orderId, 'Доставлен').then(() => fetchDeliveries())
   }
 
-  const nextStatus = (d: Delivery): Status | null => {
-    if (d.status === 'Ожидает') return 'В пути'
-    if (d.status === 'В пути') return 'Доставлен'
-    return null
+  const handleSendLocation = (orderId: string) => {
+    const socket = getSocket()
+    if (!socket) return
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        socket.emit('tracking:location', { orderId, lat: pos.coords.latitude, lng: pos.coords.longitude })
+      },
+      () => {},
+      { enableHighAccuracy: true }
+    )
+  }
+
+  useEffect(() => {
+    if (!autoSendLocation || enRouteIds.length === 0) return
+    const interval = setInterval(() => {
+      enRouteIds.forEach((orderId) => handleSendLocation(orderId))
+    }, 30_000)
+    return () => clearInterval(interval)
+  }, [autoSendLocation, enRouteIds.join(',')])
+
+  if (useApi) {
+    return (
+      <>
+        <PageTitle title={t('navCourier')} />
+        <h1 style={{ marginTop: 0 }}>{t('navCourier')}</h1>
+        <p style={{ color: '#64748b', marginBottom: '0.75rem' }}>{t('myDeliveries')}</p>
+        {enRouteIds.length > 0 && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.9rem' }}>
+            <input type="checkbox" checked={autoSendLocation} onChange={(e) => setAutoSendLocation(e.target.checked)} />
+            {t('autoSendLocation')}
+          </label>
+        )}
+        {deliveries.length === 0 ? (
+          <p style={{ color: '#64748b' }}>{t('noProducts')}</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {deliveries.map((o) => (
+              <div key={o.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div>
+                  <strong>{o.id}</strong> — {o.date} · {o.items}
+                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.95rem' }}>{Number(o.total).toLocaleString('ru-RU')} ₽</p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span
+                    style={{
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: 6,
+                      fontSize: '0.85rem',
+                      background: o.status === 'Доставлен' ? '#dcfce7' : '#fef3c7',
+                      color: '#334155',
+                    }}
+                  >
+                    {t(statusToKey(o.status))}
+                  </span>
+                  {o.status === 'В пути' && (
+                    <>
+                      <button type="button" className="btn btn-secondary" style={{ fontSize: '0.85rem' }} onClick={() => handleSendLocation(o.id)}>
+                        {t('sendMyLocation')}
+                      </button>
+                      <button type="button" className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => handleMarkDelivered(o.id)}>
+                        {t('markDelivered')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </>
+    )
   }
 
   return (
     <>
-      <PageTitle title="Курьер" />
-      <h1 style={{ marginTop: 0 }}>Курьер</h1>
-      <p style={{ color: '#64748b', marginBottom: '0.75rem' }}>Список доставок. Меняйте статус кнопками.</p>
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-        {(['Все', 'Ожидает', 'В пути', 'Доставлен'] as const).map((f) => (
-          <button
-            key={f}
-            type="button"
-            className={filter === f ? 'btn btn-primary' : 'btn btn-secondary'}
-            style={{ fontSize: '0.85rem' }}
-            onClick={() => setFilter(f)}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {filtered.map((d) => {
-          const next = nextStatus(d)
-          return (
-            <div key={d.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div>
-                <strong>{d.orderId}</strong> — {d.address}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span
-                  style={{
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: 6,
-                    fontSize: '0.85rem',
-                    background: d.status === 'Доставлен' ? '#dcfce7' : d.status === 'В пути' ? '#fef3c7' : '#e2e8f0',
-                    color: '#334155',
-                  }}
-                >
-                  {d.status}
-                </span>
-                {next && (
-                  <button type="button" className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => setStatus(d.id, next)}>
-                    {next === 'В пути' ? 'Взять в доставку' : 'Отметить доставленным'}
-                  </button>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <PageTitle title={t('navCourier')} />
+      <h1 style={{ marginTop: 0 }}>{t('navCourier')}</h1>
+      <p style={{ color: '#64748b', marginBottom: '0.75rem' }}>{t('deliveriesList')}</p>
+      <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>{t('authRequired')} {t('login')} ({t('role')} {t('navCourier')}).</p>
     </>
   )
 }

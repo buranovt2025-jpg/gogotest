@@ -1,0 +1,11 @@
+{
+  "name": "GogoMarket",
+  "short_name": "GogoMarket",
+  "description": "Маркетплейс: покупатель, продавец, курьер, админ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "ru",
+  "orientation": "portrait-primary"
+}

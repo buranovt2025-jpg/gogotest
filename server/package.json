@@ -1,0 +1,43 @@
+{
+  "name": "gogomarket-api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "test": "node test/health-check.mjs",
+    "test:health": "node test/health-check.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.985.0",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.0.0",
+    "@nestjs/throttler": "^6.5.0",
+    "@nestjs/typeorm": "^10.0.0",
+    "@nestjs/websockets": "^10.0.0",
+    "bcrypt": "^5.1.0",
+    "helmet": "^8.1.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.11.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "typeorm": "^0.3.17"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@types/bcrypt": "^5.0.0",
+    "@types/express": "^4.17.17",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^20.0.0",
+    "@types/passport-jwt": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

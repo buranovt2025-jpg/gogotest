@@ -27,19 +27,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build frontend
         run: npm run build
 
-      - name: Prepare server directory
+      - name: Build API
+        run: |
+          cd server && npm ci && npm run build
+
+      - name: Prepare API deploy bundle
+        run: |
+          mkdir -p gogomarket-api
+          cp -r server/dist gogomarket-api/
+          cp server/package.json server/package-lock.json gogomarket-api/
+
+      - name: Prepare server directories
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASSWORD }}
           port: 22
-          script: mkdir -p /var/www/html
+          script: |
+            mkdir -p /var/www/html /var/www/gogomarket-api
 
-      - name: Deploy to server (SCP)
+      - name: Deploy frontend (SCP)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -50,6 +61,42 @@ jobs:
           target: '/var/www/html'
           strip_components: 1
           overwrite: true
+
+      - name: Deploy API (SCP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          port: 22
+          source: 'gogomarket-api/'
+          target: '/var/www/'
+          strip_components: 0
+          overwrite: true
+
+      - name: Install API deps and restart (PM2)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          port: 22
+          script: |
+            set -e
+            cd /var/www/gogomarket-api
+            mkdir -p uploads
+            npm ci --omit=dev || npm install --omit=dev
+            if ! command -v pm2 >/dev/null 2>&1; then
+              echo "::warning::PM2 not installed. API files updated; run on server: npm i -g pm2 && pm2 start dist/main.js --name gogomarket-api"
+              exit 0
+            fi
+            if pm2 describe gogomarket-api >/dev/null 2>&1; then
+              pm2 restart gogomarket-api --update-env
+            else
+              pm2 start dist/main.js --name gogomarket-api
+              pm2 save
+            fi
+            echo "API deploy done."
 
       - name: Configure Nginx for SPA (fix 404 on /buyer, /seller, etc.)
         uses: appleboy/ssh-action@v1.0.3

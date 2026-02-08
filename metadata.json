@@ -1,0 +1,9 @@
+{
+  "name": "GogoMarket",
+  "version": "3.0",
+  "stack": "Vite + React + TypeScript",
+  "deploy": "Digital Ocean App Platform или статика (dist/) на Droplet",
+  "env": ["VITE_GEMINI_API_KEY", "VITE_API_URL"],
+  "localization": ["ru", "uz", "en"],
+  "pwa": "manifest.json + meta theme-color, viewport-fit, apple-mobile-web-app-*"
+}

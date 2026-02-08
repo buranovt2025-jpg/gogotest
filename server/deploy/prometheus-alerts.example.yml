@@ -1,0 +1,26 @@
+# Пример правил алертов для Prometheus (Alertmanager).
+# Подключить в prometheus.yml: rule_files: ['prometheus-alerts.example.yml']
+# Переименовать в prometheus-alerts.yml и настроить под свой job name.
+
+groups:
+  - name: gogomarket
+    rules:
+      # API недоступен (нет метрики gogomarket_info)
+      - alert: GogoMarketDown
+        expr: up{job="gogomarket"} == 0 or absent(gogomarket_info)
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "GogoMarket API недоступен"
+          description: "Инстанс {{ $labels.instance }} не отдаёт метрики более 1 минуты."
+
+      # Высокая нагрузка по запросам (опционально)
+      - alert: GogoMarketHighRequestRate
+        expr: rate(gogomarket_http_requests_total[5m]) > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокий RPS GogoMarket API"
+          description: "Более 50 запросов/сек в среднем за 5 минут ({{ $value | humanize }})."

@@ -8,11 +8,40 @@
 - **Регион:** FRA1 (Frankfurt)
 - **ОС:** Ubuntu 24.04 LTS
 
-Пароль root храните только у себя (в менеджере паролей). В репозиторий и в файлы проекта пароль не добавлять.
+---
+
+## Автодеплой (GitHub Actions)
+
+При каждом **push в ветку main** проект собирается и выгружается на сервер.
+
+### 1. Один раз на сервере: установить Nginx
+
+```bash
+ssh root@134.122.77.41
+apt-get update && apt-get install -y nginx
+mkdir -p /var/www/html
+systemctl enable nginx && systemctl start nginx
+```
+
+Либо выполнить скрипт из репозитория: `bash scripts/server-setup.sh`
+
+### 2. Секреты в GitHub
+
+В репозитории: **Settings → Secrets and variables → Actions → New repository secret.**
+
+Добавить три секрета:
+
+| Name | Value | Пример |
+|------|--------|--------|
+| `DEPLOY_HOST` | IP сервера | `134.122.77.41` |
+| `DEPLOY_USER` | пользователь SSH | `root` |
+| `DEPLOY_PASSWORD` | пароль root | ваш пароль |
+
+После этого каждый `git push origin main` запускает сборку и деплой. Сайт: **http://134.122.77.41**
 
 ---
 
-## Вариант 1: Загрузка dist на сервер
+## Вариант вручную: загрузка dist на сервер
 
 1. Локально: `npm run build` (папка `dist/` готова).
 2. Загрузить **содержимое** `dist/` в `/var/www/html` на сервере:
@@ -50,4 +79,4 @@ cp -r dist/* /var/www/html/
 - Сайт будет доступен по адресу: `http://134.122.77.41`
 - Для HTTPS: получить сертификат (например, Let's Encrypt) и настроить Nginx.
 
-Конфиги Nginx и скрипты деплоя можно добавить в репозиторий по запросу.
+Конфиги Nginx и скрипты деплоя лежат в репозитории (например, `scripts/server-setup.sh`).

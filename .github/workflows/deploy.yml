@@ -28,6 +28,8 @@ jobs:
         run: npm ci
 
       - name: Build frontend
+        env:
+          VITE_API_URL: http://${{ secrets.DEPLOY_HOST }}/api
         run: npm run build
 
       - name: Build API
@@ -98,7 +100,17 @@ jobs:
             fi
             echo "API deploy done."
 
-      - name: Configure Nginx for SPA (fix 404 on /buyer, /seller, etc.)
+      - name: Deploy Nginx config (SPA + API proxy)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          password: ${{ secrets.DEPLOY_PASSWORD }}
+          port: 22
+          source: 'deploy/nginx-default-with-api.conf'
+          target: '/tmp/'
+
+      - name: Apply Nginx and reload
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -106,6 +118,6 @@ jobs:
           password: ${{ secrets.DEPLOY_PASSWORD }}
           port: 22
           script: |
-            sudo sed -i 's/=404;/\/index.html;/' /etc/nginx/sites-available/default
+            sudo cp /tmp/nginx-default-with-api.conf /etc/nginx/sites-available/default
             sudo nginx -t && sudo systemctl reload nginx
-            echo "Nginx SPA config applied."
+            echo "Nginx applied (SPA + /api -> 3001)."

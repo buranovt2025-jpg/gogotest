@@ -8,6 +8,13 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Check deploy secrets
+        run: |
+          if [ -z "${{ secrets.DEPLOY_HOST }}" ]; then
+            echo "::error::Add Repository Secrets: DEPLOY_HOST, DEPLOY_USER, DEPLOY_PASSWORD (Settings → Secrets and variables → Actions)"
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
 

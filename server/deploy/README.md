@@ -1,3 +1,10 @@
+# Сервер: один раз
+
+- **create-env-on-server.sh** — создать `/var/www/gogomarket-api/.env`. С локальной машины: `ssh root@IP 'bash -s' < server/deploy/create-env-on-server.sh`
+- **install-postgres.sh** — установить PostgreSQL и создать БД `gogomarket` / пользователь `gogomarket`. На сервере: `sudo bash install-postgres.sh` (или скопировать скрипт на сервер и выполнить). После этого: `pm2 restart gogomarket-api`
+
+---
+
 # Примеры для мониторинга GogoMarket API
 
 - **prometheus-scrape.example.yml** — фрагмент `scrape_configs` для Prometheus (job `gogomarket`, target API).

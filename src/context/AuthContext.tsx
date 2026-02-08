@@ -54,14 +54,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const base = (import.meta.env.VITE_API_URL as string)?.trim() || ''
-    const res = await fetch(`${base.replace(/\/$/, '')}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
+    let res: Response
+    try {
+      res = await fetch(`${base.replace(/\/$/, '')}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+    } catch {
+      throw new Error('Сервер недоступен. Проверьте подключение.')
+    }
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
-      throw new Error(data.message || 'Неверный email или пароль')
+      const msg = (data as { message?: string })?.message
+      throw new Error(msg || (res.status === 401 ? 'Неверный email или пароль' : `Ошибка ${res.status}`))
     }
     const data = await res.json()
     const t = data.access_token
@@ -74,14 +80,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(async (email: string, password: string, role: string) => {
     const base = (import.meta.env.VITE_API_URL as string)?.trim() || ''
-    const res = await fetch(`${base.replace(/\/$/, '')}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, role }),
-    })
+    let res: Response
+    try {
+      res = await fetch(`${base.replace(/\/$/, '')}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role }),
+      })
+    } catch {
+      throw new Error('Сервер недоступен. Проверьте подключение.')
+    }
     if (!res.ok) {
       const data = await res.json().catch(() => ({}))
-      throw new Error(data.message || 'Ошибка регистрации')
+      const msg = (data as { message?: string })?.message
+      throw new Error(msg || `Ошибка ${res.status}`)
     }
     const data = await res.json()
     const t = data.access_token

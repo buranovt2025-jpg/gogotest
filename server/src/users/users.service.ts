@@ -15,8 +15,8 @@ export class UsersService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    const count = await this.repo.count()
-    if (count === 0) {
+    const existing = await this.findByEmail(SEED_EMAIL)
+    if (!existing) {
       await this.create(SEED_EMAIL, SEED_PASSWORD, UserRole.ADMIN)
       console.log(`Seed user created: ${SEED_EMAIL} / ${SEED_PASSWORD}`)
     }

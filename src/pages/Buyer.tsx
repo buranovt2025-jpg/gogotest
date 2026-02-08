@@ -23,6 +23,7 @@ export default function Buyer() {
 
   useEffect(() => {
     localStorage.setItem(CART_KEY, JSON.stringify(cart))
+    window.dispatchEvent(new Event('gogomarket-cart-update'))
   }, [cart])
 
   const addToCart = (id: string) => {

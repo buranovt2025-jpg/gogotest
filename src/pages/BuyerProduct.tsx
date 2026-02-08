@@ -12,6 +12,7 @@ function addToCartStorage(id: string, qty: number) {
     if (i >= 0) cart[i].qty += qty
     else cart.push({ id, qty })
     localStorage.setItem(CART_KEY, JSON.stringify(cart))
+    window.dispatchEvent(new Event('gogomarket-cart-update'))
   } catch {}
 }
 

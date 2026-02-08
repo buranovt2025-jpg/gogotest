@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
+import CartBadge from './CartBadge'
 
 export default function Layout() {
   const path = useLocation().pathname
@@ -6,7 +7,7 @@ export default function Layout() {
     <>
       <nav className="nav">
         <Link to="/" className="brand">GogoMarket</Link>
-        <Link to="/buyer" style={{ fontWeight: path === '/buyer' ? 600 : 400 }}>Покупатель</Link>
+        <span style={{ fontWeight: path.startsWith('/buyer') ? 600 : 400 }}><CartBadge /></span>
         <Link to="/seller" style={{ fontWeight: path === '/seller' ? 600 : 400 }}>Продавец</Link>
         <Link to="/courier" style={{ fontWeight: path === '/courier' ? 600 : 400 }}>Курьер</Link>
         <Link to="/admin" style={{ fontWeight: path === '/admin' ? 600 : 400 }}>Админ</Link>

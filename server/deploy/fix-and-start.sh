@@ -12,6 +12,13 @@ pm2 delete gogomarket-api 2>/dev/null || true
 # Переходим в директорию API
 cd /var/www/gogomarket-api
 
+# Проверяем переменные окружения БД
+echo "Проверка переменных окружения БД..."
+if [ ! -f ".env" ]; then
+    echo "Создаем файл .env..."
+    curl -sSL https://raw.githubusercontent.com/buranovt2025-jpg/gogotest/main/server/deploy/check-env.sh | bash || true
+fi
+
 # Проверяем наличие dist/main.js
 if [ ! -f "dist/main.js" ]; then
     echo "Ошибка: dist/main.js не найден!"

@@ -46,20 +46,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
-    # Кэширование статических файлов
-    location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        access_log off;
-    }
-
-    # Статические файлы из public (manifest, robots, sitemap)
-    location ~ ^/(manifest\.json|robots\.txt|sitemap\.xml)$ {
-        expires 1d;
-        add_header Cache-Control "public";
-    }
-
-    # API прокси
+    # API прокси - ДОЛЖЕН БЫТЬ ПЕРВЫМ (перед location /)
     location /api/ {
         # Обработка OPTIONS запросов (CORS preflight)
         if ($request_method = 'OPTIONS') {
@@ -86,6 +73,19 @@ server {
         add_header 'Access-Control-Allow-Origin' '*' always;
         add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, PATCH, DELETE, OPTIONS' always;
         add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization' always;
+    }
+
+    # Кэширование статических файлов
+    location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # Статические файлы из public (manifest, robots, sitemap)
+    location ~ ^/(manifest\.json|robots\.txt|sitemap\.xml)$ {
+        expires 1d;
+        add_header Cache-Control "public";
     }
 
     # SPA fallback - должен быть последним

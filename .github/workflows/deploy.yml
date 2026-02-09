@@ -87,12 +87,7 @@ jobs:
             set -e
             cd /var/www/gogomarket-api
             mkdir -p uploads
-            # Очищаем node_modules если есть проблемы
-            if [ -d "node_modules" ]; then
-              rm -rf node_modules
-            fi
-            # Устанавливаем зависимости
-            npm install --omit=dev --no-audit --no-fund || npm install --omit=dev
+            npm ci --omit=dev || npm install --omit=dev
             if ! command -v pm2 >/dev/null 2>&1; then
               echo "::warning::PM2 not installed. API files updated; run on server: npm i -g pm2 && pm2 start dist/main.js --name gogomarket-api"
               exit 0

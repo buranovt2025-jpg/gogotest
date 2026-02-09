@@ -4,6 +4,8 @@ import { useTranslation } from '../i18n/useTranslation'
 import { useAuth } from '../context/AuthContext'
 import { isApiEnabled } from '../api/client'
 import CartBadge from './CartBadge'
+import ToastContainer from './ToastContainer'
+import { useToastContext } from '../context/ToastContext'
 
 export default function Layout() {
   const path = useLocation().pathname
@@ -11,8 +13,11 @@ export default function Layout() {
   const { t } = useTranslation()
   const { user, logout, isAuthenticated } = useAuth()
   const showAuth = isApiEnabled()
+  const { toasts, removeToast } = useToastContext()
+  
   return (
     <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
       <a href="#main" className="skip-link">{t('skipToContent')}</a>
       <nav className="nav">
         <Link to="/" className="brand">GogoMarket</Link>

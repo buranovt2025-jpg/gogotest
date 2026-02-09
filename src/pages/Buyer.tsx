@@ -9,6 +9,8 @@ import { isApiEnabled, apiOrderTracks } from '../api/client'
 import type { DisputeReason } from '../types'
 import { useTracking } from '../hooks/useTracking'
 import TrackingMap from '../components/TrackingMap'
+import { useToastContext } from '../context/ToastContext'
+import ProductImage from '../components/ProductImage'
 
 const CART_KEY = 'gogomarket-cart'
 
@@ -27,6 +29,7 @@ export default function Buyer() {
   const { catalog, loading: catalogLoading, error: catalogError } = useCatalog()
   const { orders, addOrder, openDispute } = useOrders()
   const { isAuthenticated } = useAuth()
+  const { showToast } = useToastContext()
   const [cart, setCart] = useState<{ id: string; qty: number }[]>(loadCart)
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState<BuyerTab>('catalog')
@@ -50,13 +53,16 @@ export default function Buyer() {
   }, [cart])
 
   const addToCart = (id: string) => {
+    const product = catalog.find((p) => p.id === id)
     setCart((prev) => {
       const i = prev.findIndex((c) => c.id === id)
       if (i >= 0) {
         const next = [...prev]
         next[i].qty += 1
+        showToast(`${product?.name || 'Товар'} добавлен в корзину`, 'success')
         return next
       }
+      showToast(`${product?.name || 'Товар'} добавлен в корзину`, 'success')
       return [...prev, { id, qty: 1 }]
     })
   }
@@ -81,6 +87,10 @@ export default function Buyer() {
       navigate('/login')
       return
     }
+    if (cart.length === 0) {
+      showToast('Корзина пуста', 'warning')
+      return
+    }
     const items = cart
       .filter((c) => catalog.find((x) => x.id === c.id)?.sellerType === 'FULL')
       .map((c) => {
@@ -89,6 +99,7 @@ export default function Buyer() {
       }).join(', ')
     addOrder({ total: totalSum, status: 'Новый', items })
     setCart([])
+    showToast(`Заказ оформлен на сумму ${totalSum.toLocaleString('ru-RU')} ₽`, 'success')
   }
 
   const filteredCatalog = search.trim()
@@ -102,6 +113,7 @@ export default function Buyer() {
       return
     }
     openDispute(disputeOrderId, disputeReason, disputeComment.trim() || undefined)
+    showToast('Спор открыт. Администратор рассмотрит его в течение 48 часов', 'info')
     setDisputeOrderId(null)
     setDisputeComment('')
   }
@@ -217,16 +229,35 @@ export default function Buyer() {
       <div className="catalog-grid">
         {filteredCatalog.map((p) => (
           <div key={p.id} className="card card-product catalog-card">
+            <div style={{ marginBottom: '0.5rem', position: 'relative', width: '100%', height: '140px', borderRadius: '8px', overflow: 'hidden', background: '#f1f5f9' }}>
+              <ProductImage
+                src={p.imageUrl}
+                alt={p.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              <div className="product-image-placeholder" style={{ display: 'none', position: 'absolute', inset: 0 }}>
+                <span style={{ fontSize: '2rem', opacity: 0.3 }}>📦</span>
+              </div>
+            </div>
             <div style={{ marginBottom: '0.25rem' }}>
               {p.sellerType === 'SIMPLE' && <span className="badge">{t('dealer')}</span>}
               <Link to={`/buyer/product/${p.id}`} style={{ fontWeight: 600, display: 'inline-block' }}>{p.name}</Link>
             </div>
             <p className="card-price">{p.price.toLocaleString('ru-RU')} ₽</p>
+            {p.description && (
+              <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.25rem 0', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                {p.description}
+              </p>
+            )}
             <div className="card-actions">
               {p.sellerType === 'FULL' ? (
-                <button type="button" className="btn btn-primary" onClick={() => addToCart(p.id)}>{t('addToCart')}</button>
+                <button type="button" className="btn btn-primary btn-icon" onClick={() => addToCart(p.id)}>
+                  <span>🛒</span> {t('addToCart')}
+                </button>
               ) : (
-                <Link to={`/chat?product=${p.id}`} className="btn btn-secondary">{t('contact')}</Link>
+                <Link to={`/chat?product=${p.id}`} className="btn btn-secondary btn-icon">
+                  <span>💬</span> {t('contact')}
+                </Link>
               )}
             </div>
           </div>
@@ -325,7 +356,15 @@ const product = catalog.find((x) => x.id === c.id)
           <p style={{ marginTop: '0.5rem' }}>
             {t('total')}: {totalSum.toLocaleString('ru-RU')} ₽
           </p>
-          <button type="button" className="btn btn-primary" onClick={() => setCart([])} style={{ marginRight: '0.5rem' }}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => {
+              setCart([])
+              showToast('Корзина очищена', 'info')
+            }}
+            style={{ marginRight: '0.5rem' }}
+          >
             {t('clearCart')}
           </button>
           <button type="button" className="btn btn-secondary" onClick={handleCheckout}>

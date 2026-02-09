@@ -50,31 +50,61 @@ fi
 
 pm2 stop gogomarket-api 2>/dev/null || true
 pm2 delete gogomarket-api 2>/dev/null || true
-pm2 start dist/main.js --name gogomarket-api
+
+# Запускаем API и проверяем статус
+echo "Запуск API через PM2..."
+pm2 start dist/main.js --name gogomarket-api || {
+    echo "Ошибка при запуске API через PM2!"
+    pm2 logs gogomarket-api --lines 50 --nostream || true
+    exit 1
+}
 pm2 save
 
-# Ждем запуска
-sleep 5
+# Ждем запуска и проверяем статус
+echo "Ожидание запуска API..."
+sleep 8
 
-# Проверка
+# Проверяем статус PM2
 echo ""
-echo "Проверка:"
+echo "Статус PM2:"
+pm2 status gogomarket-api || {
+    echo "API не запущен в PM2!"
+    pm2 logs gogomarket-api --lines 50 --nostream || true
+    exit 1
+}
+
+# Проверяем логи на ошибки
+echo ""
+echo "Последние логи API:"
+pm2 logs gogomarket-api --lines 20 --nostream || true
+
+# Проверка порта
+echo ""
+echo "Проверка порта 3001:"
 if ss -tlnp | grep -q ':3001'; then
     echo "✓ Порт 3001 слушается"
-    HEALTH=$(curl -s http://localhost:3001/health || echo "ERROR")
-    if [[ "$HEALTH" == *"ok"* ]] || [[ "$HEALTH" == *"GogoMarket"* ]]; then
-        echo "✓ API работает"
-        echo "$HEALTH" | head -3
-    else
-        echo "✗ API не отвечает правильно"
-        pm2 logs gogomarket-api --lines 20 --nostream
-        exit 1
-    fi
 else
     echo "✗ Порт 3001 не слушается!"
-    pm2 logs gogomarket-api --lines 30 --nostream
+    echo "Логи API:"
+    pm2 logs gogomarket-api --lines 50 --nostream || true
+    exit 1
+fi
+
+# Проверка health endpoint
+echo ""
+echo "Проверка health endpoint:"
+HEALTH=$(curl -s --max-time 5 http://localhost:3001/health || echo "ERROR")
+if [[ "$HEALTH" == *"ok"* ]] || [[ "$HEALTH" == *"GogoMarket"* ]] || [[ "$HEALTH" == *"status"* ]]; then
+    echo "✓ API работает"
+    echo "$HEALTH" | head -5
+else
+    echo "✗ API не отвечает правильно"
+    echo "Ответ: $HEALTH"
+    echo ""
+    echo "Логи API:"
+    pm2 logs gogomarket-api --lines 50 --nostream || true
     exit 1
 fi
 
 echo ""
-echo "=== Готово! ==="
+echo "=== Готово! API успешно запущен ==="

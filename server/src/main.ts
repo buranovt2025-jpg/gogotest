@@ -9,7 +9,12 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
   const port = process.env.PORT ?? 3001
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
-  app.enableCors({ origin: true })
+  app.enableCors({ 
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads/' })
   await app.listen(port)
   console.log(`GogoMarket API http://localhost:${port}`)

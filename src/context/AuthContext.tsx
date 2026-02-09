@@ -53,27 +53,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
+    if (!email.trim() || !password.trim()) {
+      throw new Error('Заполните email и пароль')
+    }
+    
     const envUrl = (import.meta.env.VITE_API_URL as string)?.trim()
     const o = typeof window !== 'undefined' && window.location?.origin
     const apiBase = envUrl || (o && (o.startsWith('http://') || o.startsWith('https://')) ? `${o}/api` : '')
+    
+    if (!apiBase) {
+      throw new Error('API не настроен. Проверьте VITE_API_URL или откройте сайт с того же хоста, где работает API.')
+    }
+    
+    const url = `${apiBase.replace(/\/$/, '')}/auth/login`
+    
     let res: Response
     try {
-      res = await fetch(`${apiBase.replace(/\/$/, '')}/auth/login`, {
+      res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       })
-    } catch {
-      throw new Error('Сервер недоступен. Проверьте подключение.')
+    } catch (err) {
+      console.error('Login fetch error:', err)
+      throw new Error('Сервер недоступен. Проверьте подключение и убедитесь, что API запущен.')
     }
+    
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}))
-      const msg = (data as { message?: string })?.message
-      throw new Error(msg || (res.status === 401 ? 'Неверный email или пароль' : `Ошибка ${res.status}`))
+      let errorMessage = `Ошибка ${res.status}`
+      try {
+        const data = await res.json()
+        errorMessage = (data as { message?: string })?.message || errorMessage
+      } catch {
+        // Если не удалось распарсить JSON, используем стандартное сообщение
+      }
+      
+      if (res.status === 401) {
+        throw new Error('Неверный email или пароль')
+      }
+      if (res.status === 429) {
+        throw new Error('Слишком много запросов. Подождите минуту.')
+      }
+      throw new Error(errorMessage)
     }
+    
     const data = await res.json()
     const t = data.access_token
     const u = data.user as AuthUser
+    
+    if (!t || !u) {
+      throw new Error('Неверный ответ от сервера')
+    }
+    
     localStorage.setItem(TOKEN_KEY, t)
     localStorage.setItem(USER_KEY, JSON.stringify(u))
     setToken(t)
@@ -81,27 +112,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const register = useCallback(async (email: string, password: string, role: string) => {
+    if (!email.trim() || !password.trim()) {
+      throw new Error('Заполните email и пароль')
+    }
+    
+    if (password.length < 6) {
+      throw new Error('Пароль должен быть не менее 6 символов')
+    }
+    
     const envUrl = (import.meta.env.VITE_API_URL as string)?.trim()
     const o = typeof window !== 'undefined' && window.location?.origin
     const apiBase = envUrl || (o && (o.startsWith('http://') || o.startsWith('https://')) ? `${o}/api` : '')
+    
+    if (!apiBase) {
+      throw new Error('API не настроен. Проверьте VITE_API_URL или откройте сайт с того же хоста, где работает API.')
+    }
+    
+    const url = `${apiBase.replace(/\/$/, '')}/auth/register`
+    
     let res: Response
     try {
-      res = await fetch(`${apiBase.replace(/\/$/, '')}/auth/register`, {
+      res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ email: email.trim(), password, role }),
       })
-    } catch {
-      throw new Error('Сервер недоступен. Проверьте подключение.')
+    } catch (err) {
+      console.error('Register fetch error:', err)
+      throw new Error('Сервер недоступен. Проверьте подключение и убедитесь, что API запущен.')
     }
+    
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}))
-      const msg = (data as { message?: string })?.message
-      throw new Error(msg || `Ошибка ${res.status}`)
+      let errorMessage = `Ошибка ${res.status}`
+      try {
+        const data = await res.json()
+        errorMessage = (data as { message?: string })?.message || errorMessage
+      } catch {
+        // Если не удалось распарсить JSON, используем стандартное сообщение
+      }
+      
+      if (res.status === 401 || res.status === 409) {
+        throw new Error(errorMessage || 'Пользователь с таким email уже существует')
+      }
+      if (res.status === 429) {
+        throw new Error('Слишком много запросов. Подождите минуту.')
+      }
+      throw new Error(errorMessage)
     }
+    
     const data = await res.json()
     const t = data.access_token
     const u = data.user as AuthUser
+    
+    if (!t || !u) {
+      throw new Error('Неверный ответ от сервера')
+    }
+    
     localStorage.setItem(TOKEN_KEY, t)
     localStorage.setItem(USER_KEY, JSON.stringify(u))
     setToken(t)

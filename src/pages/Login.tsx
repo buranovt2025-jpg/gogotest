@@ -31,7 +31,15 @@ export default function Login() {
       <>
         <PageTitle title={t('loginTitle')} />
         <div className="empty-state">
-          <p className="text-muted">Вход доступен только при подключённом API (VITE_API_URL).</p>
+          <p className="text-muted">
+            Вход доступен только при подключённом API (VITE_API_URL).
+            <br />
+            <small style={{ fontSize: '0.85rem', marginTop: '0.5rem', display: 'block' }}>
+              Текущий API URL: {import.meta.env.VITE_API_URL || 'не задан'}
+              <br />
+              Origin: {typeof window !== 'undefined' ? window.location.origin : 'N/A'}
+            </small>
+          </p>
           <Link to="/" className="btn btn-secondary">{t('backLink')}</Link>
         </div>
       </>
@@ -46,17 +54,33 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    
+    // Валидация на клиенте
+    if (!email.trim()) {
+      setError('Введите email')
+      return
+    }
+    if (!password.trim()) {
+      setError('Введите пароль')
+      return
+    }
+    if (tab === 'register' && password.length < 6) {
+      setError('Пароль должен быть не менее 6 символов')
+      return
+    }
+    
     setLoading(true)
     try {
       if (tab === 'login') {
-        await login(email, password)
+        await login(email.trim(), password)
       } else {
-        await register(email, password, role)
+        await register(email.trim(), password, role)
       }
       navigate('/', { replace: true })
     } catch (err) {
-      const msg = err instanceof Error ? err.message : ''
-      setError(msg === 'rateLimitExceeded' ? t('rateLimitExceeded') : msg || t('authError'))
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('Auth error:', err)
+      setError(msg || t('authError'))
     } finally {
       setLoading(false)
     }
@@ -131,10 +155,27 @@ export default function Login() {
               </select>
             </>
           )}
-          {error && <p style={{ color: '#dc2626', fontSize: '0.9rem', marginBottom: '0.75rem' }}>{error}</p>}
+          {error && (
+            <div style={{ 
+              color: '#dc2626', 
+              fontSize: '0.9rem', 
+              marginBottom: '0.75rem',
+              padding: '0.75rem',
+              background: '#fee2e2',
+              borderRadius: '6px',
+              border: '1px solid #fca5a5'
+            }}>
+              <strong>Ошибка:</strong> {error}
+            </div>
+          )}
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
             {loading ? '…' : tab === 'login' ? t('login') : t('register')}
           </button>
+          {isApiEnabled() && (
+            <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: '#64748b', textAlign: 'center' }}>
+              API: {import.meta.env.VITE_API_URL || window.location.origin + '/api'}
+            </p>
+          )}
         </form>
       </div>
     </>

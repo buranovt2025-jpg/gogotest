@@ -60,7 +60,7 @@ server {
     }
 
     # API прокси
-    location ~ ^/api/(.*)$ {
+    location /api/ {
         # Обработка OPTIONS запросов (CORS preflight)
         if ($request_method = 'OPTIONS') {
             add_header 'Access-Control-Allow-Origin' '*' always;
@@ -72,9 +72,8 @@ server {
             return 204;
         }
         
-        # Проксируем на API, убирая /api из пути через переменную
-        set $api_path $1;
-        proxy_pass http://127.0.0.1:3001/$api_path;
+        # Проксируем на API, убирая /api из пути
+        proxy_pass http://127.0.0.1:3001/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

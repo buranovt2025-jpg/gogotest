@@ -38,12 +38,13 @@
 - **Auth в проде:** Seed-пользователь admin@gogomarket.local / GogoAdmin123 создаётся при старте API, если такого email ещё нет. OPTIONS для /auth/login и /auth/register (устранение 405 от preflight). Фронт: fallback API base = origin + '/api', если VITE_API_URL пустой при сборке (устранение «HTML вместо JSON»). Сообщения об ошибках: «Сервер недоступен», «Неверный email или пароль».
 - **Lighthouse (a11y, SEO, Best Practices):** На /login — подписи полей (htmlFor/id), контраст (цвета текста/рамок), табы с role/aria. public/robots.txt (User-agent: * / Allow: /). Nginx: заголовки X-Frame-Options, X-Content-Type-Options, Referrer-Policy.
 - **Alertmanager — примеры каналов:** В alertmanager.example.yml добавлены готовые закомментированные блоки для Slack (api_url, channel), Telegram (webhook/пром-сервис), email; в README — как подставить свои данные.
+- **SEO:** public/sitemap.xml — основные маршруты (/, /buyer, /seller, /courier, /admin, /login). В robots.txt добавлена строка Sitemap: /sitemap.xml.
 
 ---
 
 ## Сделать дальше
 
-1. (Резерв) По желанию: раскомментировать и заполнить Slack/Telegram/email в server/deploy/alertmanager.example.yml под свои ключи.
+1. (Резерв) По желанию: раскомментировать и заполнить Slack/Telegram/email в server/deploy/alertmanager.example.yml под свои ключи; при появлении домена — подставить полный URL в sitemap (или генерировать sitemap из API).
 
 ---
 
@@ -56,7 +57,7 @@
 ## Точка возврата (последнее состояние)
 
 - **Дата:** 2026-02-08
-- **Состояние:** В deploy добавлены примеры Slack/Telegram/email для Alertmanager. Деплой на 134.122.77.41 в работе; при появлении домена — HTTPS.
+- **Состояние:** Добавлены sitemap.xml и ссылка в robots.txt. Резерв: ключи Alertmanager, домен + HTTPS.
 - **Как продолжить:** WORK_LOG.md → «Сделать дальше»; деплой — push в main; при появлении домена — HTTPS (Let's Encrypt), обновить VITE_API_URL и Nginx.
 
 ---

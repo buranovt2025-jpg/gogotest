@@ -37,12 +37,13 @@
 - **Деплой на DO (полный):** Workflow собирает фронт (с VITE_API_URL=http://DEPLOY_HOST/api) и API, выкладывает в /var/www/html и /var/www/gogomarket-api; Nginx — полный конфиг (SPA + location /api/ → 3001); шаг «Install API deps and restart» (npm ci, pm2, mkdir uploads, fallback при отсутствии PM2). Скрипты: server/deploy/create-env-on-server.sh, install-postgres.sh. DEPLOY_DIGITAL_OCEAN.md — Node, PM2, .env, прокси.
 - **Auth в проде:** Seed-пользователь admin@gogomarket.local / GogoAdmin123 создаётся при старте API, если такого email ещё нет. OPTIONS для /auth/login и /auth/register (устранение 405 от preflight). Фронт: fallback API base = origin + '/api', если VITE_API_URL пустой при сборке (устранение «HTML вместо JSON»). Сообщения об ошибках: «Сервер недоступен», «Неверный email или пароль».
 - **Lighthouse (a11y, SEO, Best Practices):** На /login — подписи полей (htmlFor/id), контраст (цвета текста/рамок), табы с role/aria. public/robots.txt (User-agent: * / Allow: /). Nginx: заголовки X-Frame-Options, X-Content-Type-Options, Referrer-Policy.
+- **Alertmanager — примеры каналов:** В alertmanager.example.yml добавлены готовые закомментированные блоки для Slack (api_url, channel), Telegram (webhook/пром-сервис), email; в README — как подставить свои данные.
 
 ---
 
 ## Сделать дальше
 
-1. (Резерв) По желанию: подключение реальных каналов уведомлений (Slack/Telegram/email) в alertmanager.example.yml.
+1. (Резерв) По желанию: раскомментировать и заполнить Slack/Telegram/email в server/deploy/alertmanager.example.yml под свои ключи.
 
 ---
 
@@ -55,7 +56,7 @@
 ## Точка возврата (последнее состояние)
 
 - **Дата:** 2026-02-08
-- **Состояние:** Деплой на 134.122.77.41: фронт + API через GitHub Actions; Nginx с /api proxy; seed admin@gogomarket.local; исправлены 405 (OPTIONS), HTML вместо JSON (fallback origin+/api); Lighthouse-правки (a11y, robots.txt, security headers). Домен пока не настроен; при необходимости — PostgreSQL на сервере (install-postgres.sh), затем pm2 restart.
+- **Состояние:** В deploy добавлены примеры Slack/Telegram/email для Alertmanager. Деплой на 134.122.77.41 в работе; при появлении домена — HTTPS.
 - **Как продолжить:** WORK_LOG.md → «Сделать дальше»; деплой — push в main; при появлении домена — HTTPS (Let's Encrypt), обновить VITE_API_URL и Nginx.
 
 ---

@@ -24,21 +24,30 @@ route:
 
 receivers:
   - name: default
-    # Вывод в консоль (для проверки). Замените на свой канал уведомлений.
-    # Slack:
-    #   api_url: 'https://hooks.slack.com/services/XXX/YYY/ZZZ'
-    #   channel: '#alerts'
-    #   title: '{{ .GroupLabels.alertname }}'
-    #   text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
-    #
-    # Email (раскомментировать и задать smtp_* в global):
-    # email_configs:
-    #   - to: 'ops@example.com'
-    #     send_resolved: true
-    #
-    # Webhook (например, Telegram, custom API):
-    # webhook_configs:
-    #   - url: 'http://localhost:5001/webhook'
-    #     send_resolved: true
-    #
-    # Без настроенных каналов алерты только группируются и повторяются по repeat_interval.
+    # Без настроенных каналов алерты только группируются. Раскомментируйте один из блоков ниже.
+
+  # --- Slack: создайте Incoming Webhook (Slack App → Incoming Webhooks), вставьте URL и канал ---
+  # - name: slack-alerts
+  #   slack_configs:
+  #     - api_url: 'https://hooks.slack.com/services/YOUR_WORKSPACE/YOUR_CHANNEL/YOUR_WEBHOOK_ID'
+  #       channel: '#alerts'
+  #       title: '{{ .GroupLabels.alertname }}'
+  #       text: '{{ range .Alerts }}{{ .Annotations.summary }}: {{ .Annotations.description }}{{ end }}'
+  #       send_resolved: true
+  # В route.routes замените receiver: default на receiver: slack-alerts для critical/warning.
+
+  # --- Telegram: создайте бота через @BotFather, получите chat_id (напишите боту, откройте https://api.telegram.org/bot<TOKEN>/getUpdates) ---
+  # - name: telegram-alerts
+  #   webhook_configs:
+  #     - url: 'https://api.telegram.org/bot<BOT_TOKEN>/sendMessage'
+  #       send_resolved: true
+  #       http_config:
+  #         bearer_token: ''
+  # Alertmanager не шлёт JSON в Telegram напрямую; используйте промежуточный сервис (например prometheus-bot) или webhook_url на свой сервер, который парсит Alertmanager payload и дергает Telegram API.
+  # Простой вариант — готовый образ типа prometheus-telegram или скрипт: получает webhook от Alertmanager, форматирует и отправляет в Telegram.
+
+  # --- Email (в global добавьте smtp_smarthost, smtp_from и при необходимости smtp_auth_*) ---
+  # - name: email-ops
+  #   email_configs:
+  #     - to: 'ops@example.com'
+  #       send_resolved: true

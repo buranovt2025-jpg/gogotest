@@ -10,4 +10,10 @@ test.describe('Home', () => {
     await page.goto('/')
     await expect(page.locator('a[href="/buyer"]').first()).toBeVisible()
   })
+
+  test('uses design system: hero and role cards', async ({ page }) => {
+    await page.goto('/')
+    await expect(page.locator('section.hero')).toBeVisible()
+    await expect(page.locator('.role-card').first()).toBeVisible()
+  })
 })

@@ -57,7 +57,7 @@ export default function Layout() {
       <main id="main" className="layout-main" tabIndex={-1}>
         <Outlet />
       </main>
-      <footer style={{ textAlign: 'center', padding: '1.5rem', color: '#64748b', fontSize: '0.85rem' }}>
+      <footer className="app-footer">
         {t('footer')}
       </footer>
     </>

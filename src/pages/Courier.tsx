@@ -62,16 +62,18 @@ export default function Courier() {
     return (
       <>
         <PageTitle title={t('navCourier')} />
-        <h1 style={{ marginTop: 0 }}>{t('navCourier')}</h1>
-        <p style={{ color: '#64748b', marginBottom: '0.75rem' }}>{t('myDeliveries')}</p>
+        <section className="hero">
+          <h1>{t('navCourier')}</h1>
+          <p className="lead">{t('myDeliveries')}</p>
+        </section>
         {enRouteIds.length > 0 && (
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.9rem' }}>
+          <label className="checkbox-label" style={{ marginBottom: '0.75rem' }}>
             <input type="checkbox" checked={autoSendLocation} onChange={(e) => setAutoSendLocation(e.target.checked)} />
             {t('autoSendLocation')}
           </label>
         )}
         {deliveries.length === 0 ? (
-          <p style={{ color: '#64748b' }}>{t('noProducts')}</p>
+          <div className="empty-state"><p>{t('noProducts')}</p></div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {deliveries.map((o) => (
@@ -114,9 +116,13 @@ export default function Courier() {
   return (
     <>
       <PageTitle title={t('navCourier')} />
-      <h1 style={{ marginTop: 0 }}>{t('navCourier')}</h1>
-      <p style={{ color: '#64748b', marginBottom: '0.75rem' }}>{t('deliveriesList')}</p>
-      <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>{t('authRequired')} {t('login')} ({t('role')} {t('navCourier')}).</p>
+      <section className="hero">
+        <h1>{t('navCourier')}</h1>
+        <p className="lead">{t('deliveriesList')}</p>
+      </section>
+      <div className="empty-state">
+        <p className="text-muted">{t('authRequired')} {t('login')} ({t('role')} {t('navCourier')}).</p>
+      </div>
     </>
   )
 }

@@ -75,15 +75,17 @@ export default function Admin() {
   return (
     <>
       <PageTitle title={t('navAdmin')} />
-      <h1 style={{ marginTop: 0 }}>{t('navAdmin')}</h1>
+      <section className="hero">
+        <h1>{t('navAdmin')}</h1>
+        <p className="lead">{t('adminSubtitle')}</p>
+      </section>
       {isApiEnabled() && !isAuthenticated && (
-        <p style={{ padding: '0.75rem', background: '#fef3c7', borderRadius: 8, marginBottom: '1rem' }}>
+        <p className="auth-banner" style={{ marginBottom: '1rem' }}>
           {t('authRequired')} <Link to="/login">{t('login')}</Link> ({t('role')} ADMIN).
         </p>
       )}
-      <p style={{ color: '#64748b', marginBottom: '1rem' }}>{t('adminSubtitle')}</p>
 
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+      <div className="tabs-row" style={{ marginBottom: '1.5rem' }}>
         <button type="button" className={activeTab === 'stats' ? 'btn btn-primary' : 'btn btn-secondary'} onClick={() => setActiveTab('stats')}>{t('tabStats')}</button>
         <button type="button" className={activeTab === 'users' ? 'btn btn-primary' : 'btn btn-secondary'} onClick={() => setActiveTab('users')}>{t('tabUsers')}</button>
         <button type="button" className={activeTab === 'orders' ? 'btn btn-primary' : 'btn btn-secondary'} onClick={() => setActiveTab('orders')}>{t('tabOrders')}</button>
@@ -91,11 +93,11 @@ export default function Admin() {
       </div>
 
       {activeTab === 'stats' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <div className="role-grid stats-grid" style={{ marginBottom: '2rem' }}>
           {STATS.map((s) => (
-            <div key={s.key} className="card" style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{s.value}</div>
-              <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{t(s.key)}</div>
+            <div key={s.key} className="card card-stats">
+              <div className="card-stats-value">{s.value}</div>
+              <div className="text-muted" style={{ fontSize: '0.85rem' }}>{t(s.key)}</div>
             </div>
           ))}
         </div>
@@ -134,7 +136,7 @@ export default function Admin() {
           <h2 style={{ marginBottom: '0.75rem' }}>{t('tabOrders')}</h2>
           <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1rem' }}>{t('assignCourier')}: {t('orderStatusConfirmed')}.</p>
           {allOrders.length === 0 ? (
-            <p style={{ color: '#64748b' }}>{t('noProducts')}</p>
+            <div className="empty-state"><p>{t('noProducts')}</p></div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {allOrders.map((o) => (
@@ -182,7 +184,7 @@ export default function Admin() {
           <h2 style={{ marginBottom: '0.75rem' }}>{t('resolve48h')}</h2>
           <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1rem' }}>{t('disputeIntro')}</p>
           {disputes.length === 0 ? (
-            <p style={{ color: '#64748b' }}>{t('noDisputes')}</p>
+            <div className="empty-state"><p>{t('noDisputes')}</p></div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {disputes.map((o) => {

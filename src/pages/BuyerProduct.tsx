@@ -28,8 +28,10 @@ export default function BuyerProduct() {
     return (
       <>
         <PageTitle title={t('productNotFound')} />
-        <p>{t('productNotFound')}.</p>
-        <Link to="/buyer" className="btn btn-secondary">{t('backToCatalog')}</Link>
+        <div className="empty-state">
+          <p>{t('productNotFound')}.</p>
+          <Link to="/buyer" className="btn btn-secondary">{t('backToCatalog')}</Link>
+        </div>
       </>
     )
   }
@@ -44,15 +46,15 @@ export default function BuyerProduct() {
   return (
     <>
       <PageTitle title={product.name} />
-      <Link to="/buyer" style={{ display: 'inline-block', marginBottom: '1rem' }}>← {t('backToCatalog')}</Link>
-      <div className="card">
-        <div style={{ marginBottom: '0.5rem' }}>
-          {product.sellerType === 'SIMPLE' && <span style={{ fontSize: '0.75rem', background: '#e2e8f0', padding: '0.15rem 0.4rem', borderRadius: 4, marginRight: '0.5rem' }}>{t('dealer')}</span>}
-          <h1 style={{ marginTop: 0, display: 'inline' }}>{product.name}</h1>
+      <Link to="/buyer" className="back-link">← {t('backToCatalog')}</Link>
+      <div className="card card-product">
+        <div className="card-product-header">
+          {product.sellerType === 'SIMPLE' && <span className="badge">{t('dealer')}</span>}
+          <h1 className="card-product-title">{product.name}</h1>
         </div>
-        <p style={{ fontSize: '1.25rem', margin: '0.5rem 0' }}>{product.price.toLocaleString('ru-RU')} ₽</p>
-        <p style={{ color: '#64748b' }}>{product.description}</p>
-        <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <p className="card-price">{product.price.toLocaleString('ru-RU')} ₽</p>
+        <p className="text-muted">{product.description}</p>
+        <div className="card-actions">
           {isFull ? (
             <>
               <button type="button" className="btn btn-primary" onClick={() => handleAdd(1)}>{t('addToCart')}</button>

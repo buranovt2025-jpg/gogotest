@@ -7,26 +7,28 @@ export default function Home() {
   return (
     <>
       <PageTitle title={t('homeTitle')} />
-      <h1 style={{ marginTop: 0 }}>{t('homeTitle')}</h1>
-      <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>{t('homeSubtitle')}</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-        <Link to="/buyer" className="card" style={{ textAlign: 'center', padding: '1.5rem' }}>
+      <section className="hero">
+        <h1>{t('homeTitle')}</h1>
+        <p className="lead">{t('homeSubtitle')}</p>
+      </section>
+      <section className="role-grid" aria-label={t('homeTitle')}>
+        <Link to="/buyer" className="role-card">
           <strong>{t('roleBuyer')}</strong>
-          <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#64748b' }}>{t('roleBuyerDesc')}</p>
+          <span>{t('roleBuyerDesc')}</span>
         </Link>
-        <Link to="/seller" className="card" style={{ textAlign: 'center', padding: '1.5rem' }}>
+        <Link to="/seller" className="role-card">
           <strong>{t('roleSeller')}</strong>
-          <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#64748b' }}>{t('roleSellerDesc')}</p>
+          <span>{t('roleSellerDesc')}</span>
         </Link>
-        <Link to="/courier" className="card" style={{ textAlign: 'center', padding: '1.5rem' }}>
+        <Link to="/courier" className="role-card">
           <strong>{t('roleCourier')}</strong>
-          <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#64748b' }}>{t('roleCourierDesc')}</p>
+          <span>{t('roleCourierDesc')}</span>
         </Link>
-        <Link to="/admin" className="card" style={{ textAlign: 'center', padding: '1.5rem' }}>
+        <Link to="/admin" className="role-card">
           <strong>{t('roleAdmin')}</strong>
-          <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', color: '#64748b' }}>{t('roleAdminDesc')}</p>
+          <span>{t('roleAdminDesc')}</span>
         </Link>
-      </div>
+      </section>
     </>
   )
 }

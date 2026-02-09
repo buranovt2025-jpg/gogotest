@@ -39,6 +39,9 @@
 - **Lighthouse (a11y, SEO, Best Practices):** На /login — подписи полей (htmlFor/id), контраст (цвета текста/рамок), табы с role/aria. public/robots.txt (User-agent: * / Allow: /). Nginx: заголовки X-Frame-Options, X-Content-Type-Options, Referrer-Policy.
 - **Alertmanager — примеры каналов:** В alertmanager.example.yml добавлены готовые закомментированные блоки для Slack (api_url, channel), Telegram (webhook/пром-сервис), email; в README — как подставить свои данные.
 - **SEO:** public/sitemap.xml — основные маршруты (/, /buyer, /seller, /courier, /admin, /login). В robots.txt добавлена строка Sitemap: /sitemap.xml.
+- **Дизайн-система и оформление страниц:** В index.css — переменные (цвета, шрифт DM Sans), .nav, .layout-main, .card, .btn, .hero, .role-grid, .role-card, .catalog-grid, .empty-state, .app-footer, утилиты. Home — hero + role-grid/role-card. Layout — футер через .app-footer. Buyer — загрузка/пустой каталог через .empty-state, каталог через .catalog-grid и .card-product. Seller, Courier, Admin — hero + lead, empty-state для пустых списков, вкладки через .tabs-row; Admin: .stats-grid и .card-stats для блока статистики. Login — подсказка без API через .empty-state и .text-muted. A11y: у select выбора причины спора в Buyer добавлен aria-label.
+- **BuyerProduct и ChatView:** Карточка товара — .card-product, .card-product-header, .card-product-title, .card-price, .card-actions, .badge; «товар не найден» — .empty-state. Чат — .back-link, .page-heading, .lead, .chat-area, .chat-bubble-user/ai, .chat-input-row, .input; aria-label у поля ввода. В index.css добавлены .back-link, .chat-area, .chat-bubble, .chat-input-row и др.
+- **E2E:** В home.spec.ts добавлена проверка «uses design system: hero and role cards» (section.hero, .role-card). Все тесты home, buyer, login проходят; auth-order падает без VITE_API_URL при сборке (ожидаемо).
 
 ---
 
@@ -57,8 +60,8 @@
 ## Точка возврата (последнее состояние)
 
 - **Дата:** 2026-02-08
-- **Состояние:** Добавлены sitemap.xml и ссылка в robots.txt. Резерв: ключи Alertmanager, домен + HTTPS.
-- **Как продолжить:** WORK_LOG.md → «Сделать дальше»; деплой — push в main; при появлении домена — HTTPS (Let's Encrypt), обновить VITE_API_URL и Nginx.
+- **Состояние:** Дизайн применён ко всем страницам (включая BuyerProduct, ChatView). E2E: проверка hero/role-card добавлена, 7/8 тестов проходят (auth-order требует API при сборке).
+- **Как продолжить:** Деплой — push в main; при необходимости E2E с API — собрать с VITE_API_URL.
 
 ---
 

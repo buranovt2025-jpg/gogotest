@@ -50,33 +50,32 @@ export default function ChatView() {
   return (
     <>
       <PageTitle title={t('chatTitle')} />
-      <Link to="/buyer" style={{ display: 'inline-block', marginBottom: '1rem' }}>{t('backLink')}</Link>
+      <Link to="/buyer" className="back-link">{t('backLink')}</Link>
       <div className="card">
-        <h1 style={{ marginTop: 0 }}>{t('chatTitle')}</h1>
+        <h1 className="page-heading">{t('chatTitle')}</h1>
         {product && (
-          <p style={{ color: '#64748b', marginBottom: '1rem' }}>
+          <p className="lead" style={{ marginBottom: '1rem' }}>
             {t('chatProduct')}: <strong>{product.name}</strong> ({t('chatProductHint')})
           </p>
         )}
-        <div style={{ minHeight: 200, marginBottom: '1rem', padding: '0.75rem', background: '#f8fafc', borderRadius: 8 }}>
-          {messages.length === 0 && <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>{t('chatHint')}</p>}
+        <div className="chat-area">
+          {messages.length === 0 && <p className="chat-hint text-muted">{t('chatHint')}</p>}
           {messages.map((m, i) => (
-            <div key={i} style={{ marginBottom: '0.5rem', textAlign: m.role === 'user' ? 'right' : 'left' }}>
-              <span style={{ display: 'inline-block', padding: '0.35rem 0.75rem', borderRadius: 8, background: m.role === 'user' ? '#2563eb' : '#e2e8f0', color: m.role === 'user' ? '#fff' : '#334155', maxWidth: '85%' }}>
-                {m.text}
-              </span>
+            <div key={i} className={m.role === 'user' ? 'chat-row chat-row-user' : 'chat-row chat-row-ai'}>
+              <span className={m.role === 'user' ? 'chat-bubble chat-bubble-user' : 'chat-bubble chat-bubble-ai'}>{m.text}</span>
             </div>
           ))}
-          {loading && <p style={{ color: '#64748b', fontSize: '0.85rem' }}>…</p>}
+          {loading && <p className="text-muted" style={{ fontSize: '0.85rem' }}>…</p>}
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="chat-input-row">
           <input
             type="text"
+            className="input"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t('chatPlaceholder')}
-            style={{ flex: 1, padding: '0.5rem', borderRadius: 6, border: '1px solid #cbd5e1' }}
+            aria-label={t('chatPlaceholder')}
           />
           <button type="button" className="btn btn-primary" onClick={handleSend} disabled={loading}>{t('chatSend')}</button>
         </div>

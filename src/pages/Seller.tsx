@@ -168,12 +168,12 @@ export default function Seller() {
   return (
     <>
       <PageTitle title={t('navSeller')} />
-      <h1 style={{ marginTop: 0 }}>{t('navSeller')}</h1>
-      <p style={{ color: '#64748b', marginBottom: '0.75rem' }}>
-        {isSimple ? t('sellerSubtitleSimple') : t('sellerSubtitleFull')}
-      </p>
+      <section className="hero">
+        <h1>{t('navSeller')}</h1>
+        <p className="lead">{isSimple ? t('sellerSubtitleSimple') : t('sellerSubtitleFull')}</p>
+      </section>
 
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+      <div className="tabs-row" style={{ marginBottom: '1rem' }}>
         <button
           type="button"
           className={!isSimple ? 'btn btn-primary' : 'btn btn-secondary'}
@@ -194,7 +194,7 @@ export default function Seller() {
         <>
           <h2 style={{ marginBottom: '0.75rem' }}>{t('newOrders')}</h2>
           {newOrders.length === 0 ? (
-            <p style={{ color: '#64748b', marginBottom: '1rem' }}>{t('noProducts')}</p>
+            <div className="empty-state" style={{ marginBottom: '1.5rem' }}><p>{t('noProducts')}</p></div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
               {newOrders.map((o) => (

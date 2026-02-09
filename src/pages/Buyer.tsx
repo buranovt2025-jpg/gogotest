@@ -136,12 +136,20 @@ export default function Buyer() {
     <>
       <PageTitle title={t('navBuyer')} />
       <h1 style={{ marginTop: 0 }}>{t('navBuyer')}</h1>
-      {catalogLoading && <p style={{ color: '#64748b' }}>{t('loading')}</p>}
-      {catalogError && <p style={{ color: '#dc2626' }}>{catalogError.message}</p>}
-      <p style={{ color: '#64748b', marginBottom: '0.75rem' }}>
-        {t('navBuyer')}: <strong>{cartCountNum}</strong> {t('cartCount', { n: cartCountNum })}.
-      </p>
+      {catalogLoading && (
+        <div className="empty-state">
+          <p>{t('loading')}</p>
+        </div>
+      )}
+      {catalogError && <p className="text-danger" style={{ marginBottom: '1rem' }}>{catalogError.message}</p>}
+      {!catalogLoading && (
+        <p className="text-muted" style={{ marginBottom: '0.75rem' }}>
+          {t('navBuyer')}: <strong>{cartCountNum}</strong> {t('cartCount', { n: cartCountNum })}.
+        </p>
+      )}
 
+      {!catalogLoading && (
+        <>
       {/* Истории: горизонтальная лента, привязаны к товарам (productId) */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', overflowX: 'auto', paddingBottom: 4 }}>
         {catalog.slice(0, 4).map((p) => (
@@ -206,23 +214,32 @@ export default function Buyer() {
         aria-label={t('searchPlaceholder')}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+      <div className="catalog-grid">
         {filteredCatalog.map((p) => (
-          <div key={p.id} className="card">
+          <div key={p.id} className="card card-product catalog-card">
             <div style={{ marginBottom: '0.25rem' }}>
-              {p.sellerType === 'SIMPLE' && <span style={{ fontSize: '0.75rem', background: '#e2e8f0', padding: '0.15rem 0.4rem', borderRadius: 4, marginRight: '0.5rem' }}>{t('dealer')}</span>}
+              {p.sellerType === 'SIMPLE' && <span className="badge">{t('dealer')}</span>}
               <Link to={`/buyer/product/${p.id}`} style={{ fontWeight: 600, display: 'inline-block' }}>{p.name}</Link>
             </div>
-            <p style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{p.price.toLocaleString('ru-RU')} ₽</p>
-            {p.sellerType === 'FULL' ? (
-              <button type="button" className="btn btn-primary" onClick={() => addToCart(p.id)}>{t('addToCart')}</button>
-            ) : (
-              <Link to={`/chat?product=${p.id}`} className="btn btn-secondary">{t('contact')}</Link>
-            )}
+            <p className="card-price">{p.price.toLocaleString('ru-RU')} ₽</p>
+            <div className="card-actions">
+              {p.sellerType === 'FULL' ? (
+                <button type="button" className="btn btn-primary" onClick={() => addToCart(p.id)}>{t('addToCart')}</button>
+              ) : (
+                <Link to={`/chat?product=${p.id}`} className="btn btn-secondary">{t('contact')}</Link>
+              )}
+            </div>
           </div>
         ))}
       </div>
-      {filteredCatalog.length === 0 && <p style={{ color: '#64748b' }}>{t('noResults')}</p>}
+      {filteredCatalog.length === 0 && (
+        <div className="empty-state">
+          <strong>{t('noResults')}</strong>
+          <p>{t('searchPlaceholder')}</p>
+        </div>
+      )}
+        </>
+      )}
         </>
       )}
 
@@ -274,7 +291,7 @@ export default function Buyer() {
         <div className="card" style={{ marginTop: '1rem', border: '2px solid #2563eb' }}>
           <strong>{t('disputeFormTitle')}</strong> ({disputeOrderId})
           <label style={{ display: 'block', marginTop: '0.5rem', fontWeight: 600 }}>{t('disputeReasonLabel')}</label>
-          <select value={disputeReason} onChange={(e) => setDisputeReason(e.target.value as DisputeReason)} style={{ padding: '0.5rem', marginBottom: '0.5rem', borderRadius: 6, border: '1px solid #cbd5e1' }}>
+          <select aria-label={t('disputeReasonLabel')} value={disputeReason} onChange={(e) => setDisputeReason(e.target.value as DisputeReason)} style={{ padding: '0.5rem', marginBottom: '0.5rem', borderRadius: 6, border: '1px solid #cbd5e1' }}>
             <option value="damage">{t('disputeDamage')}</option>
             <option value="courier_no_show">{t('disputeCourierNoShow')}</option>
             <option value="wrong_item">{t('disputeWrongItem')}</option>

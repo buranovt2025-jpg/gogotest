@@ -30,8 +30,10 @@ export default function Login() {
     return (
       <>
         <PageTitle title={t('loginTitle')} />
-        <p style={{ color: '#475569' }}>Вход доступен только при подключённом API (VITE_API_URL).</p>
-        <Link to="/" className="btn btn-secondary">{t('backLink')}</Link>
+        <div className="empty-state">
+          <p className="text-muted">Вход доступен только при подключённом API (VITE_API_URL).</p>
+          <Link to="/" className="btn btn-secondary">{t('backLink')}</Link>
+        </div>
       </>
     )
   }
